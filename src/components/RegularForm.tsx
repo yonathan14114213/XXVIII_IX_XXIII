@@ -1,5 +1,5 @@
-import  { useState, ChangeEvent, FormEvent } from 'react';
-import { useForm } from 'react-hook-form';
+import  { useState, ChangeEvent } from 'react';
+import { useForm, FieldValues } from 'react-hook-form';
 
 interface FormData {
   username: string;
@@ -18,36 +18,39 @@ function RegularForm() {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: value
     });
+    console.log('handle changer: ',value);
   };
-  const {register, formState:{errors}} = useForm();
-  console.log(errors);
-  
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    alert(JSON.stringify(formData));
+  const {register, handleSubmit, formState:{errors}} = useForm();
+  const onSubmit = (data:FieldValues) => {
+    console.log('onsumbit function, the data is: ', data);
   };
-  const onSubmit = (data) => {console.log(data)};
+
   return (
-    <>
-    <form onSubmit={handleSubmit}>
+    <form>
         <h1>Change Me To React Hook Form</h1>
       <div>
         <input
           type="text"
           id="username"
-          {...register ("username", {required: 'this is requried',
-            minLength: 2})}
+          {...register ("username", 
+            {
+              required: 'this is reqruire',
+              minLength: {value:2, message:'min len 2'}
+            }
+          )}
           placeholder='Enter UserName'
           value={formData.username}
           onChange={handleChange}/>
       </div>
-      {/* <div>
+      <div>
         <input
           type="text"
           id="email"
-          {...register{"email", {required:'this is required'}}}
+          {...register("email", {required:'this is required',
+          pattern: {value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, message:'some identifer is missing'}
+        })}
           placeholder='Enter Email'
           value={formData.email}
           onChange={handleChange}
@@ -57,21 +60,21 @@ function RegularForm() {
         <input
           type="text"
           id="password"
-          {...register{"password", {required:'this is required', minLength:(
-            value:8,
-            message:'min length is 8'
-          ), maxLength:(
-            value:20,
-            message:'max length is 20'
-            )}}}
+          {...register ("password", {
+            required: 'this is required',
+            pattern: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$%^&+=!])(?!.*\s).{8,}$/,
+            minLength: { value: 8, message: 'min length 8'},
+            maxLength: {value:20, message:'max len 20'}
+          })}
           placeholder='Enter Password'
           value={formData.password}
           onChange={handleChange}
         />
-      </div> */}
-      <button type="submit">Submit</button>
+      </div>
+      <div>errors in the details: {errors.root?.message}</div>
+      <button onClick={handleSubmit(onSubmit)}>Submit</button>
     </form>
-  </>);
+  );
 }
 
 export default RegularForm;
